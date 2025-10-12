@@ -3,6 +3,6 @@ export class CreateEventDto {
   title: string;
   description?: string;
   status: string;
-  startAt: Date;
-  finishAt: Date;
+  start: Date;
+  end: Date;
 }

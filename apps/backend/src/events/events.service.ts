@@ -11,8 +11,8 @@ export class EventsService {
     return this.prisma.event.create({
       data: {
         ...createEventDto,
-        startAt: new Date(createEventDto.startAt),
-        finishAt: new Date(createEventDto.finishAt),
+        start: new Date(createEventDto.start),
+        end: new Date(createEventDto.end),
       },
       include: {
         user: true,
@@ -50,11 +50,11 @@ export class EventsService {
     const data = { ...updateEventDto };
     
     // Convert dates if provided
-    if (updateEventDto.startAt) {
-      data.startAt = new Date(updateEventDto.startAt);
+    if (updateEventDto.start) {
+      data.start = new Date(updateEventDto.start);
     }
-    if (updateEventDto.finishAt) {
-      data.finishAt = new Date(updateEventDto.finishAt);
+    if (updateEventDto.end) {
+      data.end = new Date(updateEventDto.end);
     }
 
     return this.prisma.event.update({

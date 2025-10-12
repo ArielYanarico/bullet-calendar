@@ -30,8 +30,8 @@ model Event {
   title       String
   description String?
   status      String
-  startAt     DateTime @map("start_at")
-  finishAt    DateTime @map("finish_at")
+  start       DateTime
+  end         DateTime
   createdAt   DateTime @default(now()) @map("created_at")
   
   // Relations
