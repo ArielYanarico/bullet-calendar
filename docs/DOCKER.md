@@ -61,7 +61,7 @@ docker-compose logs postgres
 docker-compose down -v
 docker-compose up -d
 
-# Run postgress server only
+# Run postgres server only
 docker-compose up -d postgres
 
 # Execute SQL commands directly
