@@ -148,3 +148,5 @@ apps/backend/dist
 *.swo
 *~
 
+# Prisma automatically generated client
+apps/backend/generated/prisma
