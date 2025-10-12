@@ -1,5 +1,9 @@
 # API Endpoints
 
+## Prefix
+
+- API prefix is `api`
+
 ## Users API
 
 ### GET /users
@@ -89,7 +93,7 @@
 
 ### Create a user:
 ```bash
-POST /users
+POST /api/users
 {
   "username": "john_doe"
 }
@@ -97,7 +101,7 @@ POST /users
 
 ### Create an event for the user:
 ```bash
-POST /events
+POST /api/events
 {
   "userId": 1,
   "title": "Team Meeting",
@@ -110,5 +114,5 @@ POST /events
 
 ### Get all events for a specific user:
 ```bash
-GET /events?userId=1
+GET /api/events?userId=1
 ```
