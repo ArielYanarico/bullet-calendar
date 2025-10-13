@@ -62,8 +62,8 @@
     "title": "string",
     "description": "string", // optional
     "status": "string",
-    "startAt": "date string (ISO format)",
-    "finishAt": "date string (ISO format)"
+    "start": "date string (ISO format)",
+    "end": "date string (ISO format)"
   }
   ```
 - Response: Created event object with user information
@@ -78,8 +78,8 @@
     "title": "string", // optional
     "description": "string", // optional
     "status": "string", // optional
-    "startAt": "date string (ISO format)", // optional
-    "finishAt": "date string (ISO format)" // optional
+    "start": "date string (ISO format)", // optional
+    "end": "date string (ISO format)" // optional
   }
   ```
 - Response: Updated event object with user information
@@ -107,8 +107,8 @@ POST /api/events
   "title": "Team Meeting",
   "description": "Weekly team sync",
   "status": "scheduled",
-  "startAt": "2025-10-15T10:00:00Z",
-  "finishAt": "2025-10-15T11:00:00Z"
+  "start": "2025-10-15T10:00:00Z",
+  "end": "2025-10-15T11:00:00Z"
 }
 ```
 

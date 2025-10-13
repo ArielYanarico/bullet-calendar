@@ -13,13 +13,12 @@ export interface Event {
   title: string;
   description?: string;
   status: string;
-  startAt: string;
-  finishAt: string;
+  start: string;
+  end: string;
   createdAt: string;
   user?: User;
 }
 
-// API Functions
 export async function fetchEvents(): Promise<Event[]> {
   const response = await fetch(`${API_BASE_URL}/events`, {
     cache: 'no-store',
