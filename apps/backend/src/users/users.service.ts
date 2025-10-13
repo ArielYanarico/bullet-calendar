@@ -42,4 +42,22 @@ export class UsersService {
       where: { id },
     });
   }
+
+  async findByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
+      include: {
+        events: true,
+      },
+    });
+  }
+
+  async findById(id: number) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        events: true,
+      },
+    });
+  }
 }
