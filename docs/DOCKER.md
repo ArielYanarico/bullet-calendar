@@ -58,8 +58,8 @@ docker-compose down
 docker-compose logs postgres
 
 # Reset database (removes all data)
-docker-compose down -v
-docker-compose up -d
+docker-compose down -v postgres
+docker-compose up -d postgres
 
 # Run postgres server only
 docker-compose up -d postgres
