@@ -82,12 +82,14 @@ export default function UserProfile() {
         onClick={handleClose}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        PaperProps={{
-          elevation: 3,
-          sx: {
-            minWidth: 220,
-            mt: 1,
-          },
+        slotProps={{
+          paper: {
+             elevation: 3,
+            sx: {
+              minWidth: 220,
+              mt: 1,
+            },
+          }
         }}
       >
         <Box sx={{ px: 2, py: 1 }}>

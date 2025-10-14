@@ -12,7 +12,6 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { state } = useAuth();
   const router = useRouter();
 
-  // Still loading auth state
   if (state.isLoading) {
     return (
       <Box
@@ -28,12 +27,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // Not authenticated - redirect to login
   if (!state.isAuthenticated) {
     router.push('/login');
     return null;
   }
 
-  // Authenticated - show protected content
   return <>{children}</>;
 }
