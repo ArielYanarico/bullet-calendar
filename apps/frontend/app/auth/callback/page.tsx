@@ -23,7 +23,6 @@ export default function AuthCallbackPage() {
         }
 
         const user: AuthUser = JSON.parse(decodeURIComponent(userParam));
-        console.log('We are here with: ', token);
         
         actions.setAuth(user, token);
         router.push('/calendar');
