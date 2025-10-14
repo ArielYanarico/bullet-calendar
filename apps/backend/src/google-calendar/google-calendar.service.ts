@@ -24,7 +24,6 @@ export class GoogleCalendarService {
   async listEvents(accessToken: string, calendarId: string = 'primary', options?: any) {
     try {
       if (!accessToken) {
-        console.log('No access token provided, returning empty events array');
         return [];
       }
       const auth = this.createAuthClient(accessToken);
@@ -35,7 +34,6 @@ export class GoogleCalendarService {
       });
       return response.data.items || [];
     } catch (error) {
-      console.error('Error fetching Google Calendar events:', error.message);
       return [];
     }
   }
