@@ -34,13 +34,11 @@ export async function fetchUserProfile(token: string): Promise<AuthUser> {
 }
 
 export async function logout(): Promise<void> {
-  // Clear local storage and redirect to logout endpoint
   localStorage.removeItem('auth_token');
   localStorage.removeItem('auth_user');
   window.location.href = `${API_BASE_URL}/auth/logout`;
 }
 
-// Token management
 export function getStoredToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('auth_token');

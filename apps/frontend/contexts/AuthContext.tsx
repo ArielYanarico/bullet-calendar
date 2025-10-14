@@ -2,7 +2,6 @@
 import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { AuthUser, fetchUserProfile, getStoredToken, getStoredUser, storeAuthData, clearAuthData } from '../lib/auth';
 
-// Auth State
 interface AuthState {
   user: AuthUser | null;
   token: string | null;
@@ -11,7 +10,6 @@ interface AuthState {
   error: string | null;
 }
 
-// Auth Actions
 type AuthAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
@@ -19,16 +17,14 @@ type AuthAction =
   | { type: 'CLEAR_AUTH' }
   | { type: 'UPDATE_USER'; payload: AuthUser };
 
-// Initial state
 const initialState: AuthState = {
   user: null,
   token: null,
   isAuthenticated: false,
-  isLoading: true, // Start as loading to check for existing auth
+  isLoading: true,
   error: null,
 };
 
-// Auth reducer
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case 'SET_LOADING':
@@ -63,7 +59,6 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
   }
 }
 
-// Context
 interface AuthContextType {
   state: AuthState;
   actions: {
@@ -76,7 +71,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Provider
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -84,7 +78,6 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Actions
   const setAuth = (user: AuthUser, token: string) => {
     storeAuthData(token, user);
     dispatch({ type: 'SET_AUTH', payload: { user, token } });
@@ -96,7 +89,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const updateUser = (user: AuthUser) => {
-    // Update stored user data
     if (state.token) {
       storeAuthData(state.token, user);
     }
@@ -107,7 +99,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     dispatch({ type: 'SET_ERROR', payload: null });
   };
 
-  // Check for existing auth on mount
   useEffect(() => {
     const initializeAuth = async () => {
       try {
@@ -115,12 +106,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const storedUser = getStoredUser();
 
         if (storedToken && storedUser) {
-          // Verify token is still valid by fetching profile
           try {
             const user = await fetchUserProfile(storedToken);
             dispatch({ type: 'SET_AUTH', payload: { user, token: storedToken } });
           } catch (error) {
-            // Token is invalid, clear stored data
             clearAuthData();
             dispatch({ type: 'CLEAR_AUTH' });
           }
