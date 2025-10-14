@@ -1,11 +1,13 @@
 'use client';
 import { useEffect, useMemo, useRef } from 'react';
-import { Box, Typography, CircularProgress, Paper, Alert } from '@mui/material';
+import { Box, Typography, CircularProgress, Paper, Alert, AppBar, Toolbar } from '@mui/material';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import { useEvents } from '../../contexts/AppProviders';
 import AddEventModal, { AddEventModalHandles } from '../../components/AddEventModal';
 import CalendarStats from '../../components/CalendarStats';
+import ProtectedRoute from '../../components/ProtectedRoute';
+import UserProfile from '../../components/UserProfile';
 import { eventStyleGetter, transformEventsForCalendar } from '../../lib/calendarUtils';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -37,53 +39,62 @@ export default function CalendarPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Bullet Calendar
-      </Typography>
+    <ProtectedRoute>
+      <Box sx={{ minHeight: '100vh' }}>
+        <AppBar position="static" elevation={1}>
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Bullet Calendar
+            </Typography>
+            <UserProfile />
+          </Toolbar>
+        </AppBar>
 
-      {eventsState.error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={eventsActions.clearError}>
-          Events Error: {eventsState.error}
-        </Alert>
-      )}
+        <Box sx={{ p: 3 }}>
+          {eventsState.error && (
+            <Alert severity="error" sx={{ mb: 2 }} onClose={eventsActions.clearError}>
+              Events Error: {eventsState.error}
+            </Alert>
+          )}
 
-      <CalendarStats events={eventsState.events} />
+          <CalendarStats events={eventsState.events} />
 
-      <Paper elevation={2} sx={{ p: 2, height: 600 }}>
-        <Calendar
-          localizer={localizer}
-          events={calendarEvents}
-          style={{ height: '100%' }}
-          eventPropGetter={eventStyleGetter}
-          views={['month', 'week', 'day']}
-          defaultView="week"
-          step={30}
-          timeslots={2}
-          onSelectEvent={(event) => {
-            const originalEvent = event.resource?.originalEvent;
-            addEventModal.current?.handleOpen();
-            addEventModal.current?.setFormData({
-              ...originalEvent,
-              start: moment(originalEvent.start).format('yyyy-MM-DDTHH:mm'),
-              end: moment(originalEvent.end).format('yyyy-MM-DDTHH:mm'),
-            } as any);
-          }}
-          onSelectSlot={({ start, end }) => {
-            addEventModal.current?.handleOpen();
-            addEventModal.current?.setFormData({
-              userId: '',
-              title: '',
-              description: '',
-              status: 'scheduled',
-              start: moment(start).format('yyyy-MM-DDTHH:mm'),
-              end: moment(end).format('yyyy-MM-DDTHH:mm'),
-            });
-          }}
-          selectable
-        />
-      </Paper>
-      <AddEventModal ref={addEventModal} />
-    </Box>
+          <Paper elevation={2} sx={{ p: 2, height: 600 }}>
+            <Calendar
+              localizer={localizer}
+              events={calendarEvents}
+              style={{ height: '100%' }}
+              eventPropGetter={eventStyleGetter}
+              views={['month', 'week', 'day']}
+              defaultView="week"
+              step={30}
+              timeslots={2}
+              onSelectEvent={(event) => {
+                const originalEvent = event.resource?.originalEvent;
+                addEventModal.current?.handleOpen();
+                addEventModal.current?.setFormData({
+                  ...originalEvent,
+                  start: moment(originalEvent.start).format('yyyy-MM-DDTHH:mm'),
+                  end: moment(originalEvent.end).format('yyyy-MM-DDTHH:mm'),
+                } as any);
+              }}
+              onSelectSlot={({ start, end }) => {
+                addEventModal.current?.handleOpen();
+                addEventModal.current?.setFormData({
+                  userId: '',
+                  title: '',
+                  description: '',
+                  status: 'scheduled',
+                  start: moment(start).format('yyyy-MM-DDTHH:mm'),
+                  end: moment(end).format('yyyy-MM-DDTHH:mm'),
+                });
+              }}
+              selectable
+            />
+          </Paper>
+          <AddEventModal ref={addEventModal} />
+        </Box>
+      </Box>
+    </ProtectedRoute>
   );
 }

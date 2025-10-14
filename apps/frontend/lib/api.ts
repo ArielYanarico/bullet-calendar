@@ -1,5 +1,14 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
+// Helper function to get auth headers
+function getAuthHeaders(): HeadersInit {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+  };
+}
+
 export interface User {
   id: number;
   username: string;
@@ -22,6 +31,7 @@ export interface Event {
 export async function fetchEvents(): Promise<Event[]> {
   const response = await fetch(`${API_BASE_URL}/events`, {
     cache: 'no-store',
+    headers: getAuthHeaders(),
   });
   
   if (!response.ok) {
@@ -34,6 +44,7 @@ export async function fetchEvents(): Promise<Event[]> {
 export async function fetchUsers(): Promise<User[]> {
   const response = await fetch(`${API_BASE_URL}/users`, {
     cache: 'no-store',
+    headers: getAuthHeaders(),
   });
   
   if (!response.ok) {
@@ -46,9 +57,7 @@ export async function fetchUsers(): Promise<User[]> {
 export async function createEvent(event: Omit<Event, 'id' | 'createdAt' | 'user'>): Promise<Event> {
   const response = await fetch(`${API_BASE_URL}/events`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(event),
   });
   
@@ -62,9 +71,7 @@ export async function createEvent(event: Omit<Event, 'id' | 'createdAt' | 'user'
 export async function createUser(user: Omit<User, 'id' | 'createdAt' | 'events'>): Promise<User> {
   const response = await fetch(`${API_BASE_URL}/users`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(user),
   });
   
