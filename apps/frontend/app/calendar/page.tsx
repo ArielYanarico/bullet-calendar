@@ -3,15 +3,15 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Box, Typography, CircularProgress, Paper, Alert, AppBar, Toolbar } from '@mui/material';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
-import { useEvents } from '../../contexts/AppProviders';
-import AddEventModal, { AddEventModalHandles } from '../../components/AddEventModal';
-import CalendarStats from '../../components/CalendarStats';
-import ProtectedRoute from '../../components/ProtectedRoute';
-import UserProfile from '../../components/UserProfile';
-import { eventStyleGetter, transformEventsForCalendar } from '../../lib/calendarUtils';
+import { useEvents } from '@/contexts/AppProviders';
+import AddEventModal, { AddEventModalHandles } from '@/components/AddEventModal';
+import CalendarStats from '@/components/CalendarStats';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import UserProfile from '@/components/UserProfile';
+import { eventStyleGetter, transformEventsForCalendar } from '@/lib/calendarUtils';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import '../../styles/calendar.css';
+import '@/styles/calendar.css';
 
 const localizer = momentLocalizer(moment);
 
@@ -40,8 +40,8 @@ export default function CalendarPage() {
 
   return (
     <ProtectedRoute>
-      <Box sx={{ minHeight: '100vh' }}>
-        <AppBar position="static" elevation={1}>
+      <Box sx={{ minHeight: '90vh', pt: '52px' }}>
+        <AppBar position="fixed" elevation={1}>
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Bullet Calendar
@@ -69,6 +69,8 @@ export default function CalendarPage() {
               defaultView="week"
               step={30}
               timeslots={2}
+              selectable
+              popup
               onSelectEvent={(event) => {
                 const originalEvent = event.resource?.originalEvent;
                 addEventModal.current?.handleOpen();
@@ -89,7 +91,6 @@ export default function CalendarPage() {
                   end: moment(end).format('yyyy-MM-DDTHH:mm'),
                 });
               }}
-              selectable
             />
           </Paper>
           <AddEventModal ref={addEventModal} />

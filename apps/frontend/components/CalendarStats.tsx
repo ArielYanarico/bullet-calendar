@@ -1,5 +1,5 @@
 import { Box, Typography, Paper } from '@mui/material';
-import { Event } from '../lib/api';
+import { Event } from '@/lib/api';
 
 interface CalendarStatsProps {
   events: Event[];
@@ -12,7 +12,7 @@ export default function CalendarStats({ events }: CalendarStatsProps) {
   const scheduledEvents = events.filter(e => e.status === 'scheduled').length;
 
   return (
-    <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
       <Paper elevation={1} sx={{ p: 2, minWidth: 120 }}>
         <Typography variant="h6" color="primary">
           {totalEvents}
