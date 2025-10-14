@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import moment from 'moment';
 import { PrismaService } from '../prisma/prisma.service';
+import { GoogleCalendarService } from '../google-calendar/google-calendar.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 
 @Injectable()
 export class EventsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private googleCalendarService: GoogleCalendarService) { }
 
   async create(createEventDto: CreateEventDto) {
     return this.prisma.event.create({
@@ -20,12 +22,48 @@ export class EventsService {
     });
   }
 
-  async findAll() {
-    return this.prisma.event.findMany({
+  async findAllWithGoogleIntegration(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    const accessToken = (user as any)?.googleAccessToken;
+    let googleEvents: any[] = [];
+    try {
+      const googleRawEvents = await this.googleCalendarService.listEvents(
+        accessToken,
+        'primary',
+        {
+          timeMin: moment().startOf('year').toISOString(),
+          timeMax: moment().endOf('year').toISOString(),
+          singleEvents: true,
+        }
+      );
+      googleEvents = googleRawEvents.map(event => ({
+        id: event.id,
+        userId: userId,
+        title: event.summary,
+        description: event.description,
+        status: event.status,
+        start: event.start?.dateTime || event.start?.date,
+        end: event.end?.dateTime || event.end?.date,
+        createdAt: event.created,
+        isGoogleEvent: true,
+      }));
+      console.log('Google Calendar events:', googleEvents, 'events found');
+    } catch (error) {
+      throw new Error(`Failed to fetch Google Calendar events: ${error.message}`);
+    }
+
+    const localEvents = await this.prisma.event.findMany({
       include: {
         user: true,
       },
     });
+
+    return [
+      ...localEvents,
+      ...googleEvents,
+    ];
   }
 
   async findOne(id: number) {
@@ -48,8 +86,7 @@ export class EventsService {
 
   async update(id: number, updateEventDto: UpdateEventDto) {
     const data = { ...updateEventDto };
-    
-    // Convert dates if provided
+
     if (updateEventDto.start) {
       data.start = new Date(updateEventDto.start);
     }
