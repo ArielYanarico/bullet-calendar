@@ -17,6 +17,12 @@ export class AuthController {
     res.redirect(`${frontendUrl}/auth/callback?token=${access_token}&user=${encodeURIComponent(JSON.stringify(user))}`);
   }
 
+  @Get('profile')
+  @UseGuards(AuthGuard('jwt'))
+  async getProfile(@Req() req) {
+    return req.user;
+  }
+
   @Get('logout')
   async logout(@Res() res) {
     res.redirect(`${frontendUrl}/login`);
