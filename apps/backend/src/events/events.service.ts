@@ -9,6 +9,20 @@ import { UpdateEventDto } from './dto/update-event.dto';
 export class EventsService {
   constructor(private prisma: PrismaService, private googleCalendarService: GoogleCalendarService) { }
 
+  private mapGoogleEventToLocal(event: any, userId: number) {
+    return {
+      id: event.id,
+      userId: userId,
+      title: event.summary,
+      description: event.description,
+      status: event.status,
+      start: event.start?.dateTime || event.start?.date,
+      end: event.end?.dateTime || event.end?.date,
+      createdAt: event.created,
+      isGoogleEvent: true,
+    };
+  }
+
   async create(createEventDto: CreateEventDto) {
     return this.prisma.event.create({
       data: {
@@ -38,18 +52,7 @@ export class EventsService {
           singleEvents: true,
         }
       );
-      googleEvents = googleRawEvents.map(event => ({
-        id: event.id,
-        userId: userId,
-        title: event.summary,
-        description: event.description,
-        status: event.status,
-        start: event.start?.dateTime || event.start?.date,
-        end: event.end?.dateTime || event.end?.date,
-        createdAt: event.created,
-        isGoogleEvent: true,
-      }));
-      console.log('Google Calendar events:', googleEvents, 'events found');
+      googleEvents = googleRawEvents.map(event => this.mapGoogleEventToLocal(event, userId));
     } catch (error) {
       throw new Error(`Failed to fetch Google Calendar events: ${error.message}`);
     }
