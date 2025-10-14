@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef } from 'react';
-import { Box, Typography, CircularProgress, Paper, Alert, AppBar, Toolbar } from '@mui/material';
+import { Box, Typography, CircularProgress, Paper, Alert, AppBar, Toolbar, Button } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import { useEvents } from '@/contexts/AppProviders';
@@ -46,6 +47,15 @@ export default function CalendarPage() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Bullet Calendar
             </Typography>
+            <Button 
+              onClick={eventsActions.loadEvents}
+              variant='outlined'
+              color='inherit'
+              sx={{ mr: 2 }}
+              startIcon={<RefreshIcon />}
+            >
+              Refresh
+            </Button>
             <UserProfile />
           </Toolbar>
         </AppBar>

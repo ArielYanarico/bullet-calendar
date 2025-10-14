@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { Event, fetchEvents, createEvent } from '@/lib/api';
+import { Event, fetchEventsWithGoogle, createEvent } from '@/lib/api';
 
 interface EventsState {
   events: Event[];
@@ -56,7 +56,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     loadEvents: async () => {
       dispatch({ type: 'FETCH_START' });
       try {
-        const events = await fetchEvents();
+        const events = await fetchEventsWithGoogle();
         dispatch({ type: 'FETCH_SUCCESS', payload: events });
       } catch (error) {
         dispatch({ 

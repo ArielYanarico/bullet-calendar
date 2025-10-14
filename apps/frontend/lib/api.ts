@@ -41,6 +41,19 @@ export async function fetchEvents(): Promise<Event[]> {
   return response.json();
 }
 
+export async function fetchEventsWithGoogle(): Promise<Event[]> {
+  const response = await fetch(`${API_BASE_URL}/events/with-google`, {
+    cache: 'no-store',
+    headers: getAuthHeaders(),
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch events with Google integration: ${response.status}`);
+  }
+  
+  return response.json();
+}
+
 export async function fetchUsers(): Promise<User[]> {
   const response = await fetch(`${API_BASE_URL}/users`, {
     cache: 'no-store',
