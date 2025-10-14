@@ -20,6 +20,8 @@ model User {
   firstName String?  @map("first_name")
   lastName  String?  @map("last_name")
   picture   String?
+  googleAccessToken  String? @map("google_access_token")
+  googleRefreshToken String? @map("google_refresh_token")
   createdAt DateTime @default(now()) @map("created_at")
   
   // Relations

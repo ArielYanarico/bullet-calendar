@@ -7,8 +7,8 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { EventsService } from './events.service';
@@ -27,11 +27,16 @@ export class EventsController {
 
   @Get()
   @UseGuards(AuthGuard('jwt'))
-  findAll(@Query('userId') userId?: string) {
-    if (userId) {
-      return this.eventsService.findByUser(parseInt(userId));
-    }
-    return this.eventsService.findAll();
+  findAll(@Req() req) {
+    const user = req.user;
+    return this.eventsService.findByUser(user.id);
+  }
+
+  @Get('with-google')
+  @UseGuards(AuthGuard('jwt'))
+  findAllWithGoogle(@Req() req) {
+    const user = req.user;
+    return this.eventsService.findAllWithGoogleIntegration(user.id);
   }
 
   @Get(':id')

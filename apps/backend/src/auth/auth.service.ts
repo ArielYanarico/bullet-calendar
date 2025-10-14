@@ -8,6 +8,7 @@ export interface GoogleUser {
   lastName: string;
   picture: string;
   accessToken: string;
+  refreshToken?: string;
 }
 
 @Injectable()
@@ -28,12 +29,16 @@ export class AuthService {
           firstName: googleUser.firstName,
           lastName: googleUser.lastName,
           picture: googleUser.picture,
+          googleAccessToken: googleUser.accessToken,
+          googleRefreshToken: googleUser.refreshToken,
         });
       } else {
         user = await this.usersService.update(user.id, {
           firstName: googleUser.firstName,
           lastName: googleUser.lastName,
           picture: googleUser.picture,
+          googleAccessToken: googleUser.accessToken,
+          googleRefreshToken: googleUser.refreshToken,
         });
       }
 
