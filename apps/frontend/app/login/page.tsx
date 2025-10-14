@@ -45,15 +45,15 @@ export default function LoginPage() {
               startIcon={<GoogleIcon />}
               onClick={handleGoogleLogin}
               sx={{
-                width: [220, 180],
-                mr: [0, 2],
-                mb: [2, 0],
+                width: { xs: 220, sm: 180 },
+                mr: { xs: 0, sm: 2 },
+                mb: { xs: 2, sm: 0 },
               }}
             >
               Sign in
             </Button>
             <Link href="https://github.com/ArielYanarico/bullet-calendar" target='_blank' passHref>
-              <Button variant="outlined" size="large" sx={{ width: [220, 180], }}>
+              <Button variant="outlined" size="large" sx={{ width: { xs: 220, sm: 180 }, }}>
                 More Info&nbsp;<LaunchIcon sx={{ width: 14 }}/>
               </Button>
             </Link>
