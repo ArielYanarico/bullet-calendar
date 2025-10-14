@@ -9,6 +9,10 @@ The application includes two main entities:
 ### User Table
 - `id`: Primary key (auto-increment)
 - `username`: String
+- `email`: String
+- `firstName`: String
+- `lastName`: String
+- `picture`: String
 - `created_at`: Timestamp (auto-generated)
 
 ### Event Table
