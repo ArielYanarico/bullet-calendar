@@ -39,7 +39,7 @@ export default function AddOrUpdateEventModal({ ref }: { ref: Ref<AddEventModalH
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.start || !formData.end) {
-      alert('Please fill in all required fields');
+      eventsActions.showError('Please fill in all required fields');
       return;
     }
 
@@ -95,12 +95,16 @@ export default function AddOrUpdateEventModal({ ref }: { ref: Ref<AddEventModalH
           <TextField
             name="description"
             label="Description"
-            value={formData.description}
+            value={formData.description || ''}
             onChange={handleInputChange}
             multiline
             rows={3}
             fullWidth
             disabled={disabled}
+            slotProps={{
+              input: { id: "description" },
+              inputLabel: { htmlFor: "description" },
+            }}
           />
 
           <TextField
@@ -112,6 +116,10 @@ export default function AddOrUpdateEventModal({ ref }: { ref: Ref<AddEventModalH
             required
             fullWidth
             disabled={disabled}
+            slotProps={{
+              input: { id: "status" },
+              inputLabel: { htmlFor: "status" },
+            }}
           >
             <MenuItem value="scheduled">Scheduled</MenuItem>
             <MenuItem value="in-progress">In Progress</MenuItem>
