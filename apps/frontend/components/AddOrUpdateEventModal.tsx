@@ -10,49 +10,59 @@ export interface AddEventModalHandles {
 }
 
 interface FormData {
-  userId: string;
+  id?: number;
   title: string;
   description: string;
   status: string;
   start: string;
   end: string;
+  isUpdate?: boolean;
 }
 
-export default function AddEventFab({ ref }: { ref: Ref<AddEventModalHandles> }) {
+export default function AddOrUpdateEventModal({ ref }: { ref: Ref<AddEventModalHandles> }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    userId: '',
     title: '',
     description: '',
     status: 'scheduled',
     start: '',
     end: '',
   });
-
   const { actions: eventsActions } = useEvents();
+
+  const disabled = (formData as any).isGoogleEvent;
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   useImperativeHandle(ref, () => ({ handleOpen, handleClose, setFormData }));
 
   const handleSubmit = async () => {
-    // TODO: validate form data
-    /*if (!formData.userId || !formData.title || !formData.start || !formData.end) {
+    if (!formData.title || !formData.start || !formData.end) {
       alert('Please fill in all required fields');
       return;
-    }*/
+    }
 
     setLoading(true);
     try {
-      await eventsActions.addEvent({
-        userId: 1,
-        title: formData.title,
-        description: formData.description || undefined,
-        status: formData.status,
-        start: formData.start,
-        end: formData.end,
-      });
+      if (formData.isUpdate) {
+        await eventsActions.updateEvent({
+          id: formData.id || 0,
+          title: formData.title,
+          description: formData.description || undefined,
+          status: formData.status,
+          start: formData.start,
+          end: formData.end,
+        });
+      } else {
+        await eventsActions.addEvent({
+          title: formData.title,
+          description: formData.description || undefined,
+          status: formData.status,
+          start: formData.start,
+          end: formData.end,
+        });
+      }
 
       handleClose();
     } catch (error) {
@@ -69,7 +79,7 @@ export default function AddEventFab({ ref }: { ref: Ref<AddEventModalHandles> })
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add New Event</DialogTitle>
+      <DialogTitle>{formData.isUpdate ? 'Update Event' : 'Add New Event'}</DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
@@ -79,6 +89,7 @@ export default function AddEventFab({ ref }: { ref: Ref<AddEventModalHandles> })
             onChange={handleInputChange}
             required
             fullWidth
+            disabled={disabled}
           />
 
           <TextField
@@ -89,6 +100,7 @@ export default function AddEventFab({ ref }: { ref: Ref<AddEventModalHandles> })
             multiline
             rows={3}
             fullWidth
+            disabled={disabled}
           />
 
           <TextField
@@ -99,11 +111,13 @@ export default function AddEventFab({ ref }: { ref: Ref<AddEventModalHandles> })
             onChange={handleInputChange}
             required
             fullWidth
+            disabled={disabled}
           >
             <MenuItem value="scheduled">Scheduled</MenuItem>
             <MenuItem value="in-progress">In Progress</MenuItem>
             <MenuItem value="completed">Completed</MenuItem>
             <MenuItem value="cancelled">Cancelled</MenuItem>
+            <MenuItem value="confirmed">Confirmed</MenuItem>
           </TextField>
 
           <TextField
@@ -114,6 +128,7 @@ export default function AddEventFab({ ref }: { ref: Ref<AddEventModalHandles> })
             onChange={handleInputChange}
             required
             fullWidth
+            disabled={disabled}
             slotProps={{
               inputLabel: {
                 shrink: true,
@@ -129,6 +144,7 @@ export default function AddEventFab({ ref }: { ref: Ref<AddEventModalHandles> })
             onChange={handleInputChange}
             required
             fullWidth
+            disabled={disabled}
             slotProps={{
               inputLabel: {
                 shrink: true,
@@ -139,8 +155,8 @@ export default function AddEventFab({ ref }: { ref: Ref<AddEventModalHandles> })
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" disabled={loading}>
-          {loading ? 'Creating...' : 'Create Event'}
+        <Button onClick={handleSubmit} variant="contained" disabled={loading || disabled}>
+          {loading ? 'Save...' : 'Save Event'}
         </Button>
       </DialogActions>
     </Dialog>

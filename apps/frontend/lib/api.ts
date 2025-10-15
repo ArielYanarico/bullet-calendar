@@ -67,7 +67,7 @@ export async function fetchUsers(): Promise<User[]> {
   return response.json();
 }
 
-export async function createEvent(event: Omit<Event, 'id' | 'createdAt' | 'user'>): Promise<Event> {
+export async function createEvent(event: Omit<Event, 'id' | 'createdAt' | 'user' | 'userId'>): Promise<Event> {
   const response = await fetch(`${API_BASE_URL}/events`, {
     method: 'POST',
     headers: getAuthHeaders(),
@@ -78,6 +78,20 @@ export async function createEvent(event: Omit<Event, 'id' | 'createdAt' | 'user'
     throw new Error(`Failed to create event: ${response.status}`);
   }
   
+  return response.json();
+}
+
+export async function updateEvent(event: Omit<Event, 'createdAt' | 'user' | 'userId'>): Promise<Event> {
+  const response = await fetch(`${API_BASE_URL}/events/${event.id}`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(event),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update event: ${response.status}`);
+  }
+
   return response.json();
 }
 

@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { Event, fetchEventsWithGoogle, createEvent } from '@/lib/api';
+import { Event, fetchEventsWithGoogle, createEvent, updateEvent } from '@/lib/api';
 
 interface EventsState {
   events: Event[];
@@ -13,13 +13,15 @@ type EventsAction =
   | { type: 'FETCH_SUCCESS'; payload: Event[] }
   | { type: 'FETCH_ERROR'; payload: string }
   | { type: 'ADD_EVENT'; payload: Event }
+  | { type: 'UPDATE_EVENT'; payload: Event }  
   | { type: 'CLEAR_ERROR' };
 
 interface EventsContextType {
   state: EventsState;
   actions: {
     loadEvents: () => Promise<void>;
-    addEvent: (event: Omit<Event, 'id' | 'createdAt' | 'user'>) => Promise<void>;
+    addEvent: (event: Omit<Event, 'id' | 'createdAt' | 'user' | 'userId'>) => Promise<void>;
+    updateEvent: (event: Omit<Event, 'createdAt' | 'user' | 'userId'>) => Promise<void>;
     clearError: () => void;
   };
 }
@@ -40,6 +42,11 @@ function eventsReducer(state: EventsState, action: EventsAction): EventsState {
       return { ...state, loading: false, error: action.payload };
     case 'ADD_EVENT':
       return { ...state, events: [...state.events, action.payload] };
+    case 'UPDATE_EVENT':
+      return {
+        ...state,
+        events: state.events.map(event => event.id === action.payload.id ? action.payload : event)
+      };
     case 'CLEAR_ERROR':
       return { ...state, error: null };
     default:
@@ -59,21 +66,33 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         const events = await fetchEventsWithGoogle();
         dispatch({ type: 'FETCH_SUCCESS', payload: events });
       } catch (error) {
-        dispatch({ 
-          type: 'FETCH_ERROR', 
-          payload: error instanceof Error ? error.message : 'Failed to load events' 
+        dispatch({
+          type: 'FETCH_ERROR',
+          payload: error instanceof Error ? error.message : 'Failed to load events'
         });
       }
     },
 
-    addEvent: async (eventData: Omit<Event, 'id' | 'createdAt' | 'user'>) => {
+    addEvent: async (eventData: Omit<Event, 'id' | 'createdAt' | 'user' | 'userId'>) => {
       try {
         const newEvent = await createEvent(eventData);
         dispatch({ type: 'ADD_EVENT', payload: newEvent });
       } catch (error) {
-        dispatch({ 
-          type: 'FETCH_ERROR', 
-          payload: error instanceof Error ? error.message : 'Failed to create event' 
+        dispatch({
+          type: 'FETCH_ERROR',
+          payload: error instanceof Error ? error.message : 'Failed to create event'
+        });
+      }
+    },
+
+    updateEvent: async (oldEvent: Omit<Event, 'createdAt' | 'user' | 'userId'>) => {
+      try {
+         const newEvent = await updateEvent(oldEvent);
+        dispatch({ type: 'UPDATE_EVENT', payload: newEvent });
+      } catch (error) {
+        dispatch({
+          type: 'FETCH_ERROR',
+          payload: error instanceof Error ? error.message : 'Failed to update event'
         });
       }
     },
