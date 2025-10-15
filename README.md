@@ -60,6 +60,23 @@ npm run backend:build
 npm run frontend:build
 ```
 
+### Docker Deployment
+
+For a complete containerized setup with PostgreSQL database:
+
+```bash
+# Quick start - builds and runs everything
+npm run docker:dev
+
+# Or run individual Docker commands
+npm run docker:build    # Build images
+npm run docker:up       # Start in background
+npm run docker:down     # Stop services
+npm run docker:logs     # View logs
+```
+
+See [`docker/README.md`](docker/README.md) for detailed Docker documentation.
+
 ### Testing
 
 Run tests for all applications:
