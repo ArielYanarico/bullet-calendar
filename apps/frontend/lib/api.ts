@@ -33,11 +33,12 @@ export async function fetchEvents(): Promise<Event[]> {
     cache: 'no-store',
     headers: getAuthHeaders(),
   });
-  
+
   if (!response.ok) {
-    throw new Error(`Failed to fetch events: ${response.status}`);
+    const errorData = await response.json();
+    throw new Error(`Failed to fetch events: ${errorData.message}`);
   }
-  
+
   return response.json();
 }
 
@@ -48,7 +49,8 @@ export async function fetchEventsWithGoogle(): Promise<Event[]> {
   });
   
   if (!response.ok) {
-    throw new Error(`Failed to fetch events with Google integration: ${response.status}`);
+    const errorData = await response.json();
+    throw new Error(`Failed to fetch events with Google integration: ${errorData.message}`);
   }
   
   return response.json();
@@ -61,7 +63,8 @@ export async function fetchUsers(): Promise<User[]> {
   });
   
   if (!response.ok) {
-    throw new Error(`Failed to fetch users: ${response.status}`);
+    const errorData = await response.json();
+    throw new Error(`Failed to fetch users: ${errorData.message}`);
   }
   
   return response.json();
@@ -75,7 +78,8 @@ export async function createEvent(event: Omit<Event, 'id' | 'createdAt' | 'user'
   });
   
   if (!response.ok) {
-    throw new Error(`Failed to create event: ${response.status}`);
+    const errorData = await response.json();
+    throw new Error(`Failed to create event: ${errorData.message}`);
   }
   
   return response.json();
@@ -89,7 +93,8 @@ export async function updateEvent(event: Omit<Event, 'createdAt' | 'user' | 'use
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to update event: ${response.status}`);
+    const errorData = await response.json();
+    throw new Error(`Failed to update event: ${errorData.message}`);
   }
 
   return response.json();
@@ -103,7 +108,8 @@ export async function createUser(user: Omit<User, 'id' | 'createdAt' | 'events'>
   });
   
   if (!response.ok) {
-    throw new Error(`Failed to create user: ${response.status}`);
+    const errorData = await response.json();
+    throw new Error(`Failed to create user: ${errorData.message}`);
   }
   
   return response.json();

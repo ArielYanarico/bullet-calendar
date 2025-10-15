@@ -22,6 +22,7 @@ interface EventsContextType {
     loadEvents: () => Promise<void>;
     addEvent: (event: Omit<Event, 'id' | 'createdAt' | 'user' | 'userId'>) => Promise<void>;
     updateEvent: (event: Omit<Event, 'createdAt' | 'user' | 'userId'>) => Promise<void>;
+    showError: (message: string) => void;
     clearError: () => void;
   };
 }
@@ -95,6 +96,10 @@ export function EventsProvider({ children }: { children: ReactNode }) {
           payload: error instanceof Error ? error.message : 'Failed to update event'
         });
       }
+    },
+
+    showError: (message: string) => {
+      dispatch({ type: 'FETCH_ERROR', payload: message });
     },
 
     clearError: () => {

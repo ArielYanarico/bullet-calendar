@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useMemo, useRef } from 'react';
-import { Box, Typography, CircularProgress, Paper, Alert, AppBar, Toolbar, Button } from '@mui/material';
+import { Box, Typography, CircularProgress, Paper, Alert, AppBar, Toolbar, Button, Snackbar } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
@@ -62,9 +62,16 @@ export default function CalendarPage() {
 
         <Box sx={{ p: 3 }}>
           {eventsState.error && (
-            <Alert severity="error" sx={{ mb: 2 }} onClose={eventsActions.clearError}>
-              Events Error: {eventsState.error}
-            </Alert>
+            <Snackbar 
+              open={Boolean(eventsState.error)} 
+              autoHideDuration={6000} 
+              onClose={eventsActions.clearError}
+               anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+              <Alert severity="error" sx={{ mb: 2 }} onClose={eventsActions.clearError}>
+                {eventsState.error}
+              </Alert>
+            </Snackbar>
           )}
 
           <CalendarStats events={eventsState.events} />
