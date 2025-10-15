@@ -21,8 +21,9 @@ export class EventsController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  create(@Body() createEventDto: CreateEventDto) {
-    return this.eventsService.create(createEventDto);
+  create(@Body() createEventDto: CreateEventDto, @Req() req) {
+    const user = req.user;
+    return this.eventsService.create({...createEventDto, userId: user.id});
   }
 
   @Get()
@@ -50,8 +51,10 @@ export class EventsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateEventDto: UpdateEventDto,
+    @Req() req,
   ) {
-    return this.eventsService.update(id, updateEventDto);
+    const user = req.user;
+    return this.eventsService.update(id, { ...updateEventDto, userId: user.id });
   }
 
   @Delete(':id')

@@ -52,6 +52,14 @@
   transition: all 0.2s ease;
 }
 
+.rbc-allday-cell {
+  height: 46px !important;
+}
+
+.rbc-allday-cell .rbc-event {
+  margin-top: 2px;
+}
+
 .rbc-toolbar {
   margin-bottom: 16px;
   display: flex;

@@ -5,7 +5,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import { useEvents } from '@/contexts/AppProviders';
-import AddEventModal, { AddEventModalHandles } from '@/components/AddEventModal';
+import AddEventModal, { AddEventModalHandles } from '@/components/AddOrUpdateEventModal';
 import CalendarStats from '@/components/CalendarStats';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import UserProfile from '@/components/UserProfile';
@@ -88,12 +88,12 @@ export default function CalendarPage() {
                   ...originalEvent,
                   start: moment(originalEvent.start).format('yyyy-MM-DDTHH:mm'),
                   end: moment(originalEvent.end).format('yyyy-MM-DDTHH:mm'),
+                  isUpdate: true,
                 } as any);
               }}
               onSelectSlot={({ start, end }) => {
                 addEventModal.current?.handleOpen();
                 addEventModal.current?.setFormData({
-                  userId: '',
                   title: '',
                   description: '',
                   status: 'scheduled',

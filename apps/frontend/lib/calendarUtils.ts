@@ -47,10 +47,12 @@ export const eventStyleGetter = (event: any) => {
       break;
   }
 
+  if (event.resource?.originalEvent?.isGoogleEvent) backgroundColor = '#808080'; // Google gray
+  
   return {
     style: {
       backgroundColor,
-      borderRadius: '5px',
+      borderRadius: '6px',
       opacity: 0.8,
       color: 'white',
       border: '0px',
