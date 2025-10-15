@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: bullet-calendar-postgres
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - bullet-calendar-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: bullet-calendar-app
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    ports:
+      - "3000:3000"  # Frontend
+      - "3001:3001"  # Backend API
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bullet-calendar-network
+    volumes:
+      - /app/node_modules
+      - /app/apps/backend/node_modules  
+      - /app/apps/frontend/node_modules
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  bullet-calendar-network:
+    driver: bridge
