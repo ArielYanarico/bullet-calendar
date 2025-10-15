@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import moment from 'moment';
 import { PrismaService } from '../../prisma/prisma.service';
 import { GoogleCalendarService } from '../../google-calendar/google-calendar.service';
+import mapGoogleEventToLocal from '../utils/mapGoogleEventToLocal';
 
 export interface ConflictCheckResult {
   hasConflicts: boolean;
@@ -19,7 +20,7 @@ export class ScheduleConflictValidator {
   constructor(
     private prisma: PrismaService,
     private googleCalendarService: GoogleCalendarService
-  ) {}
+  ) { }
 
   /**
    * Validates that a time slot doesn't conflict with existing events
@@ -35,7 +36,6 @@ export class ScheduleConflictValidator {
     endTime: Date,
     excludeEventId?: number
   ): Promise<void> {
-    // Validate that end time is after start time
     if (endTime <= startTime) {
       throw new BadRequestException('Event end time must be after start time');
     }
@@ -53,9 +53,9 @@ export class ScheduleConflictValidator {
       const sourceText = sources.includes('google') && sources.includes('local')
         ? 'existing and Google Calendar events'
         : sources.includes('google')
-        ? 'Google Calendar events'
-        : 'existing events';
-      
+          ? 'Google Calendar events'
+          : 'existing events';
+
       throw new BadRequestException(
         `Scheduling conflict detected with ${sourceText}: ${conflictTitles}`
       );
@@ -78,7 +78,6 @@ export class ScheduleConflictValidator {
   ): Promise<ConflictCheckResult> {
     const conflicts: ConflictCheckResult['conflicts'] = [];
 
-    // Check for conflicts with local events
     const localConflicts = await this.checkLocalEventConflicts(
       userId,
       startTime,
@@ -87,7 +86,6 @@ export class ScheduleConflictValidator {
     );
     conflicts.push(...localConflicts);
 
-    // Check for conflicts with Google Calendar events
     const googleConflicts = await this.checkGoogleCalendarConflicts(
       userId,
       startTime,
@@ -103,6 +101,12 @@ export class ScheduleConflictValidator {
 
   /**
    * Check conflicts with local database events
+   * Searches for events that overlap with the specified time range, excluding a specific event if provided.
+   * @param userId - The ID of the user whose events are checked for conflicts.
+   * @param startTime - The start time of the new event.
+   * @param endTime - The end time of the new event.
+   * @param excludeEventId - (Optional) The ID of an event to exclude from conflict checking (e.g., when updating an event).
+   * @returns A promise that resolves to an array of conflicting local events, each containing the event's ID, title, start and end times, and source.
    */
   private async checkLocalEventConflicts(
     userId: number,
@@ -116,33 +120,13 @@ export class ScheduleConflictValidator {
         id: excludeEventId ? { not: excludeEventId } : undefined,
         OR: [
           // New event starts during existing event
-          {
-            AND: [
-              { start: { lte: startTime } },
-              { end: { gt: startTime } }
-            ]
-          },
-          // New event ends during existing event  
-          {
-            AND: [
-              { start: { lt: endTime } },
-              { end: { gte: endTime } }
-            ]
-          },
+          { AND: [{ start: { lte: startTime } }, { end: { gt: startTime } }] },
+          // New event ends during existing event
+          { AND: [{ start: { lt: endTime } }, { end: { gte: endTime } }] },
           // New event completely contains existing event
-          {
-            AND: [
-              { start: { gte: startTime } },
-              { end: { lte: endTime } }
-            ]
-          },
+          { AND: [{ start: { gte: startTime } }, { end: { lte: endTime } }] },
           // Existing event completely contains new event
-          {
-            AND: [
-              { start: { lte: startTime } },
-              { end: { gte: endTime } }
-            ]
-          }
+          { AND: [{ start: { lte: startTime } }, { end: { gte: endTime } }] }
         ]
       }
     });
@@ -158,6 +142,11 @@ export class ScheduleConflictValidator {
 
   /**
    * Check conflicts with Google Calendar events
+   * Searches for events that overlap with the specified time range.
+   * @param userId - The ID of the user whose events are checked for conflicts.
+   * @param startTime - The start time of the new event.
+   * @param endTime - The end time of the new event.
+   * @returns A promise that resolves to an array of conflicting local events, each containing the event's ID, title, start and end times, and source.
    */
   private async checkGoogleCalendarConflicts(
     userId: number,
@@ -168,11 +157,12 @@ export class ScheduleConflictValidator {
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
       });
-      
+
       const accessToken = (user as any)?.googleAccessToken;
-      
+
       if (!accessToken) {
-        return []; // No Google integration, no conflicts
+        // No Google integration, no conflicts
+        return [];
       }
 
       const googleEvents = await this.googleCalendarService.listEvents(
@@ -194,23 +184,28 @@ export class ScheduleConflictValidator {
         );
       });
 
-      return conflictingGoogleEvents.map(event => ({
-        id: `google_${event.id}`,
-        title: event.summary || 'Google Calendar Event',
-        start: event.start?.dateTime || event.start?.date || '',
-        end: event.end?.dateTime || event.end?.date || '',
-        source: 'google' as const
-      }));
+      return conflictingGoogleEvents.map(event => ({...mapGoogleEventToLocal(event, userId), source: 'google'}));
 
     } catch (error) {
-      // If Google Calendar check fails, log warning but don't fail the operation
       console.warn('Could not check Google Calendar conflicts:', error.message);
       return [];
     }
   }
 
   /**
-   * Check if two time periods overlap
+   * Determines if two time intervals overlap.
+   *
+   * Overlap is detected if:
+   * - The new event starts during the other event.
+   * - The new event ends during the other event.
+   * - The new event completely contains the other event.
+   * - The other event completely contains the new event.
+   *
+   * @param start1 - The start time of the new event as a Date object.
+   * @param end1 - The end time of the new event as a Date object.
+   * @param start2 - The start time of the other event as a string (ISO format) or undefined.
+   * @param end2 - The end time of the other event as a string (ISO format) or undefined.
+   * @returns `true` if the time intervals overlap; otherwise, `false`.
    */
   private isTimeOverlap(
     start1: Date,

@@ -5,6 +5,7 @@ import { GoogleCalendarService } from '../google-calendar/google-calendar.servic
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { ScheduleConflictValidator } from './validation/schedule-conflict.validator';
+import mapGoogleEventToLocal from './utils/mapGoogleEventToLocal';
 
 @Injectable()
 export class EventsService {
@@ -14,25 +15,10 @@ export class EventsService {
     private scheduleValidator: ScheduleConflictValidator
   ) { }
 
-  private mapGoogleEventToLocal(event: any, userId: number) {
-    return {
-      id: event.id,
-      userId: userId,
-      title: event.summary,
-      description: event.description,
-      status: event.status,
-      start: event.start?.dateTime || event.start?.date,
-      end: event.end?.dateTime || event.end?.date,
-      createdAt: event.created,
-      isGoogleEvent: true,
-    };
-  }
-
   async create(createEventDto: CreateEventDto) {
     const startDate = new Date(createEventDto.start);
     const endDate = new Date(createEventDto.end);
 
-    // Validate no scheduling conflicts
     await this.scheduleValidator.validateNoConflicts(
       createEventDto.userId,
       startDate,
@@ -67,7 +53,7 @@ export class EventsService {
           singleEvents: true,
         }
       );
-      googleEvents = googleRawEvents.map(event => this.mapGoogleEventToLocal(event, userId));
+      googleEvents = googleRawEvents.map(event => mapGoogleEventToLocal(event, userId));
     } catch (error) {
       throw new Error(`Failed to fetch Google Calendar events: ${error.message}`);
     }
@@ -103,7 +89,6 @@ export class EventsService {
   }
 
   async update(id: number, updateEventDto: UpdateEventDto) {
-    // Get the existing event to determine userId and current times
     const existingEvent = await this.prisma.event.findUnique({
       where: { id }
     });
@@ -125,7 +110,6 @@ export class EventsService {
       data.end = endDate;
     }
 
-    // Validate no scheduling conflicts (excluding this event)
     await this.scheduleValidator.validateNoConflicts(
       existingEvent.userId,
       startDate,
