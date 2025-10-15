@@ -1,13 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import moment from 'moment';
 import { PrismaService } from '../prisma/prisma.service';
 import { GoogleCalendarService } from '../google-calendar/google-calendar.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { ScheduleConflictValidator } from './validation/schedule-conflict.validator';
 
 @Injectable()
 export class EventsService {
-  constructor(private prisma: PrismaService, private googleCalendarService: GoogleCalendarService) { }
+  constructor(
+    private prisma: PrismaService, 
+    private googleCalendarService: GoogleCalendarService,
+    private scheduleValidator: ScheduleConflictValidator
+  ) { }
 
   private mapGoogleEventToLocal(event: any, userId: number) {
     return {
@@ -24,11 +29,21 @@ export class EventsService {
   }
 
   async create(createEventDto: CreateEventDto) {
+    const startDate = new Date(createEventDto.start);
+    const endDate = new Date(createEventDto.end);
+
+    // Validate no scheduling conflicts
+    await this.scheduleValidator.validateNoConflicts(
+      createEventDto.userId,
+      startDate,
+      endDate
+    );
+
     return this.prisma.event.create({
       data: {
         ...createEventDto,
-        start: new Date(createEventDto.start),
-        end: new Date(createEventDto.end),
+        start: startDate,
+        end: endDate,
       },
       include: {
         user: true,
@@ -88,14 +103,35 @@ export class EventsService {
   }
 
   async update(id: number, updateEventDto: UpdateEventDto) {
+    // Get the existing event to determine userId and current times
+    const existingEvent = await this.prisma.event.findUnique({
+      where: { id }
+    });
+
+    if (!existingEvent) {
+      throw new BadRequestException('Event not found');
+    }
+
     const data = { ...updateEventDto };
+    let startDate = existingEvent.start;
+    let endDate = existingEvent.end;
 
     if (updateEventDto.start) {
-      data.start = new Date(updateEventDto.start);
+      startDate = new Date(updateEventDto.start);
+      data.start = startDate;
     }
     if (updateEventDto.end) {
-      data.end = new Date(updateEventDto.end);
+      endDate = new Date(updateEventDto.end);
+      data.end = endDate;
     }
+
+    // Validate no scheduling conflicts (excluding this event)
+    await this.scheduleValidator.validateNoConflicts(
+      existingEvent.userId,
+      startDate,
+      endDate,
+      id
+    );
 
     return this.prisma.event.update({
       where: { id },
