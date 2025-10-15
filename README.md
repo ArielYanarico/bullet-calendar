@@ -1,123 +1,111 @@
 # Bullet Calendar
 
-A modern bullet journal calendar application built with a monorepo architecture.
+A modern bullet journal calendar application with **Google OAuth authentication** and **Google Calendar integration**.
+
+## Features
+
+✨ **Google OAuth Authentication** - Secure login with your Google account  
+📅 **Google Calendar Integration** - Sync with your existing Google Calendar events  
+⚡ **Scheduling Conflict Prevention** - Automatic conflict detection across all calendars  
+🐳 **Docker Ready** - Complete containerized deployment  
+🔒 **JWT Authentication** - Secure API access with JSON Web Tokens  
+
+## Quick Start
+
+### Development Mode
+```bash
+npm install
+npm run dev
+```
+Access: [Frontend](http://localhost:3000) | [Backend API](http://localhost:3001/api)
+
+### Docker Deployment
+```bash
+# Copy and configure environment
+cp docker/.env.docker.example docker/.env.docker
+# Edit docker/.env.docker with your Google OAuth credentials
+
+# Start everything
+npm run docker:dev
+```
 
 ## Architecture
 
-This project is organized as a monorepo containing:
-
-- **Backend** (`apps/backend`): NestJS API server
-- **Frontend** (`apps/frontend`): Next.js web application (without Tailwind CSS)
+**Monorepo Structure:**
+- **Backend** (`apps/backend`): NestJS API with Prisma ORM
+- **Frontend** (`apps/frontend`): Next.js React application
 
 ## Prerequisites
 
 - Node.js 20.x or higher
 - npm 10.x or higher
+- Google Cloud Console project (for OAuth credentials)
 
-## Getting Started
-
-### Installation
-
-Install all dependencies:
+## Development Commands
 
 ```bash
+# Install dependencies
 npm install
-```
 
-### Development
-
-Run both backend and frontend in development mode:
-
-```bash
+# Development mode (both apps)
 npm run dev
-```
 
-Or run them individually:
-
-```bash
-# Backend only
+# Individual apps
 npm run backend:dev
-
-# Frontend only
 npm run frontend:dev
-```
 
-### Building
-
-Build both applications:
-
-```bash
+# Build for production
 npm run build
-```
 
-Or build them individually:
-
-```bash
-# Backend only
-npm run backend:build
-
-# Frontend only
-npm run frontend:build
-```
-
-### Docker Deployment
-
-For a complete containerized setup with PostgreSQL database:
-
-```bash
-# Quick start - builds and runs everything
-npm run docker:dev
-
-# Or run individual Docker commands
-npm run docker:build    # Build images
-npm run docker:up       # Start in background
-npm run docker:down     # Stop services
-npm run docker:logs     # View logs
-```
-
-See [`docker/README.md`](docker/README.md) for detailed Docker documentation.
-
-### Testing
-
-Run tests for all applications:
-
-```bash
+# Run tests
 npm test
 ```
 
-Or run tests individually:
+## Docker Commands
 
 ```bash
-# Backend tests
-npm run backend:test
+# Complete setup with database
+npm run docker:dev
 
-# Frontend tests
-npm run frontend:test
+# Production deployment
+npm run docker:up
+npm run docker:down
+
+# View logs
+npm run docker:logs
 ```
+
+## Tech Stack
+
+**Backend:** NestJS + TypeScript + Prisma + PostgreSQL + Google OAuth  
+**Frontend:** Next.js + TypeScript + CSS Modules  
+**Infrastructure:** Docker + Docker Compose  
+
+## Documentation
+
+📖 **[API Reference](docs/API.md)** - Complete API endpoints and authentication  
+🗄️ **[Database Guide](docs/DATABASE.md)** - Schema, migrations, and Prisma setup  
+🐳 **[Docker Setup](docs/DOCKER.md)** - Containerization and deployment guide  
 
 ## Project Structure
 
 ```
 bullet-calendar/
 ├── apps/
-│   ├── backend/          # NestJS backend application
-│   └── frontend/         # Next.js frontend application
-├── package.json          # Root package.json with workspace configuration
-└── README.md            # This file
+│   ├── backend/          # NestJS API (port 3001)
+│   └── frontend/         # Next.js app (port 3000)
+├── docker/               # Docker configuration
+├── docs/                 # Documentation
+└── package.json          # Workspace configuration
 ```
 
-## Tech Stack
+## Technical Debts
 
-### Backend
-- **Framework**: NestJS
-- **Language**: TypeScript
-- **Runtime**: Node.js
-
-### Frontend
-- **Framework**: Next.js
-- **Language**: TypeScript
-- **Styling**: CSS Modules (no Tailwind)
-- **UI Library**: React
+- [ ] Add and update unit tests
+- [ ] Use nest validations in DTOs for validating requests
+- [ ] Add endpoint documentaion using Swagger
+- [ ] Refactor console logs in order to use nest logger
+- [ ] Improve Auth module to handle google refresh token (research)
 
 ## License
 

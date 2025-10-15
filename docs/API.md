@@ -28,11 +28,13 @@
   ```json
   {
     "id": 1,
-    "username": "user@example.com",
-    "email": "user@example.com", 
+    "username": "John Doe",
+    "email": "john.doe@example.com", 
     "firstName": "John",
     "lastName": "Doe",
-    "picture": "https://lh3.googleusercontent.com/...",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocK...",
+    "googleAccessToken": "ya29.a0AfH6SMC...",
+    "googleRefreshToken": "1//04...",
     "createdAt": "2025-10-14T10:00:00.000Z"
   }
   ```
@@ -54,13 +56,25 @@
   [
     {
       "id": 1,
-      "username": "user@example.com",
-      "email": "user@example.com",
+      "username": "John Doe",
+      "email": "john.doe@example.com",
       "firstName": "John",
       "lastName": "Doe", 
-      "picture": "https://lh3.googleusercontent.com/...",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocK...",
+      "googleAccessToken": "ya29.a0AfH6SMC...",
+      "googleRefreshToken": "1//04...",
       "createdAt": "2025-10-14T10:00:00.000Z",
-      "events": [...]
+      "events": [
+        {
+          "id": 1,
+          "title": "Team Meeting",
+          "description": "Weekly team sync",
+          "status": "scheduled",
+          "start": "2025-10-15T10:00:00.000Z",
+          "end": "2025-10-15T11:00:00.000Z",
+          "createdAt": "2025-10-14T10:00:00.000Z"
+        }
+      ]
     }
   ]
   ```
@@ -77,11 +91,13 @@
 - **Body**:
   ```json
   {
-    "username": "string",
-    "email": "string",
-    "firstName": "string",
-    "lastName": "string", 
-    "picture": "string"   
+    "username": "John Doe",
+    "email": "john.doe@example.com",
+    "firstName": "John",
+    "lastName": "Doe", 
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocK...",
+    "googleAccessToken": "ya29.a0AfH6SMC...",
+    "googleRefreshToken": "1//04..."
   }
   ```
 - **Response**: Created user object
@@ -93,11 +109,11 @@
 - **Body**:
   ```json
   {
-    "username": "string", 
-    "email": "string",    
-    "firstName": "string",
-    "lastName": "string", 
-    "picture": "string"   
+    "username": "John Smith", 
+    "email": "john.smith@example.com",    
+    "firstName": "John",
+    "lastName": "Smith", 
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocK..."
   }
   ```
 - **Response**: Updated user object
@@ -112,10 +128,9 @@
 **All endpoints require JWT authentication**
 
 ### GET /events
-- **Description**: Get all events with user information  
+- **Description**: Get all events for the authenticated user
 - **Authentication**: JWT token required
-- **Query Parameters**: `userId` (optional) - Filter events by user ID
-- **Response**: Array of events with user information
+- **Response**: Array of events for the current user
   ```json
   [
     {
@@ -129,13 +144,47 @@
       "createdAt": "2025-10-14T10:00:00.000Z",
       "user": {
         "id": 1,
-        "username": "user@example.com",
-        "email": "user@example.com",
+        "username": "John Doe",
+        "email": "john.doe@example.com",
         "firstName": "John",
         "lastName": "Doe"
       }
     }
   ]
+  ```
+
+### GET /events/with-google
+- **Description**: Get all events for the authenticated user including Google Calendar events
+- **Authentication**: JWT token required
+- **Response**: Array of events combining local and Google Calendar events
+  ```json
+  {
+    "localEvents": [
+      {
+        "id": 1,
+        "userId": 1,
+        "title": "Team Meeting",
+        "description": "Weekly team sync",
+        "status": "scheduled", 
+        "start": "2025-10-15T10:00:00.000Z",
+        "end": "2025-10-15T11:00:00.000Z",
+        "createdAt": "2025-10-14T10:00:00.000Z"
+      }
+    ],
+    "googleEvents": [
+      {
+        "id": "google_event_id_123",
+        "summary": "Doctor Appointment",
+        "description": "Annual checkup",
+        "start": {
+          "dateTime": "2025-10-16T14:00:00.000Z"
+        },
+        "end": {
+          "dateTime": "2025-10-16T15:00:00.000Z"
+        }
+      }
+    ]
+  }
   ```
 
 ### GET /events/:id
@@ -145,37 +194,37 @@
 - **Response**: Event object with user information
 
 ### POST /events
-- **Description**: Create a new event
+- **Description**: Create a new event (userId automatically set from JWT token)
 - **Authentication**: JWT token required
 - **Body**:
   ```json
   {
-    "userId": "number",
-    "title": "string",
-    "description": "string",
-    "status": "string",
-    "start": "date string (ISO format)",
-    "end": "date string (ISO format)"
+    "title": "Team Meeting",
+    "description": "Weekly team sync",
+    "status": "scheduled",
+    "start": "2025-10-15T10:00:00.000Z",
+    "end": "2025-10-15T11:00:00.000Z"
   }
   ```
 - **Response**: Created event object with user information
+- **Note**: Includes automatic scheduling conflict validation
 
 ### PATCH /events/:id
-- **Description**: Update an event
+- **Description**: Update an event (userId automatically set from JWT token)
 - **Authentication**: JWT token required
 - **Parameters**: `id` (number) - Event ID
 - **Body**:
   ```json
   {
-    "userId": "number",
-    "title": "string",
-    "description": "string",
-    "status": "string",
-    "start": "date string (ISO format)",
-    "end": "date string (ISO format)"
+    "title": "Updated Team Meeting",
+    "description": "Weekly team sync - updated agenda",
+    "status": "confirmed",
+    "start": "2025-10-15T14:00:00.000Z",
+    "end": "2025-10-15T15:30:00.000Z"
   }
   ```
 - **Response**: Updated event object with user information
+- **Note**: Includes automatic scheduling conflict validation
 
 ### DELETE /events/:id
 - **Description**: Delete an event
@@ -220,7 +269,6 @@ Authorization: Bearer <jwt_token>
 Content-Type: application/json
 
 {
-  "userId": 1,
   "title": "Team Meeting",
   "description": "Weekly team sync",
   "status": "scheduled",
@@ -235,9 +283,9 @@ GET /api/events
 Authorization: Bearer <jwt_token>
 ```
 
-### Get events for specific user:
+### Get events with Google Calendar integration:
 ```bash
-GET /api/events?userId=1
+GET /api/events/with-google
 Authorization: Bearer <jwt_token>
 ```
 
@@ -265,8 +313,17 @@ Authorization: Bearer <jwt_token>
 ```json
 {
   "statusCode": 400,
-  "message": ["field is required", "invalid format"],
+  "message": "Scheduling conflict detected",
   "error": "Bad Request"
 }
 ```
-**Causes**: Invalid request body or parameters
+**Causes**: Invalid request body, parameters, or scheduling conflicts
+
+### 404 Not Found
+```json
+{
+  "statusCode": 404,
+  "message": "Event not found"
+}
+```
+**Causes**: Requested resource doesn't exist or user doesn't have access
