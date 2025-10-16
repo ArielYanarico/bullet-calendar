@@ -59,17 +59,19 @@ COPY --from=builder /app/apps/frontend/public ./apps/frontend/public
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
-# Copy startup script
-COPY docker/start.sh ./
-RUN chmod +x start.sh 
+# Copy startup script, fix line endings, and set permissions  
+COPY docker/start.sh /app/start.sh
+RUN sed -i 's/\r$//' /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Create necessary directories and set permissions
 RUN mkdir -p /app/apps/frontend/.next
 RUN chown -R nextjs:nodejs /app/apps/frontend
 RUN chown -R nextjs:nodejs /app/apps/backend
+RUN chown nextjs:nodejs /app/start.sh
 
 EXPOSE 3000 3001
 
 USER nextjs
 
-CMD ["./start.sh"]
+CMD ["/app/start.sh"]

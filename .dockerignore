@@ -19,13 +19,6 @@ apps/backend/dist/
 .git
 .gitignore
 
-# Docker
-docker/.env*
-docker/docker-compose*.yml
-docker/README.md
-Dockerfile*
-.dockerignore
-
 # IDE
 .vscode
 .idea
@@ -60,3 +53,12 @@ jspm_packages/
 # Prisma
 apps/backend/prisma/migrations/
 !apps/backend/prisma/schema.prisma
+
+# Docker
+docker/.env*
+docker/docker-compose*.yml
+docker/README.md
+Dockerfile*
+.dockerignore
+# Allow start.sh script
+!docker/start.sh
