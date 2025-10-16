@@ -71,6 +71,8 @@ export async function fetchUsers(): Promise<User[]> {
 }
 
 export async function createEvent(event: Omit<Event, 'id' | 'createdAt' | 'user' | 'userId'>): Promise<Event> {
+  event.start = new Date(event.start).toISOString();
+  event.end = new Date(event.end).toISOString();
   const response = await fetch(`${API_BASE_URL}/events`, {
     method: 'POST',
     headers: getAuthHeaders(),
@@ -86,6 +88,8 @@ export async function createEvent(event: Omit<Event, 'id' | 'createdAt' | 'user'
 }
 
 export async function updateEvent(event: Omit<Event, 'createdAt' | 'user' | 'userId'>): Promise<Event> {
+  event.start = new Date(event.start).toISOString();
+  event.end = new Date(event.end).toISOString();
   const response = await fetch(`${API_BASE_URL}/events/${event.id}`, {
     method: 'PATCH',
     headers: getAuthHeaders(),
